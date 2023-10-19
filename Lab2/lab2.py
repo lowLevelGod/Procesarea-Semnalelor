@@ -33,13 +33,13 @@ def computeGamma(x, z, snr):
     znorm = np.sum(np.square(z))
     xnorm = np.sum(np.square(x))
     
-    return np.sqrt(znorm / snr * xnorm)
+    return np.sqrt(xnorm / (snr * znorm))
 
 noisySine = sine + computeGamma(sine, noise, 0.1) * noise
 noisySine1 = sine1 + computeGamma(sine1, noise1, 1) * noise1
 noisySine2 = sine2 + computeGamma(sine2, noise2, 10) * noise2
 noisySine3 = sine3 + computeGamma(sine3, noise3, 100) * noise3
-    
+
 
 plt.title("Noisy sine waves")
 plt.plot(time, noisySine, label="SNR 0.1")
@@ -67,10 +67,10 @@ sawtooth = 240 * np.mod(timeSaw, 1 / 240)
 timeSquare = np.arange(0, 0.1, 1 / 4600)
 square = np.sign(np.sin(2 * np.pi * timeSquare * 300))
 
-sounddevice.play(sine1, 44100)
-sounddevice.play(sine2, 44100)
-sounddevice.play(sawtooth, 44100)
-sounddevice.play(square, 44100)
+# sounddevice.play(sine1, 44100)
+# sounddevice.play(sine2, 44100)
+# sounddevice.play(sawtooth, 44100)
+# sounddevice.play(square, 44100)
 
 rate = int(10e5)
 scipy.io.wavfile.write("sawtooth.wav", rate, sawtooth)
@@ -100,9 +100,21 @@ sine1 = 1 * np.sin(2 * np.pi * 10 * time + 0)
 
 combined = np.concatenate([sine, sine1])
 
-sounddevice.play(combined)
+# sounddevice.play(combined, 44100)
 # dupa o secunda sunetul este diferit pentru ca incepe a doua sinusoida
 # iar sunetul este mai ascutit din cauza frecventei mai mari
+
+def x(f, time):
+    return np.sin(2 * np.pi * f * time)
+
+
+time = np.linspace(0, 10, 100000000)
+f0 = 10000
+timeChirpExponential = 100 ** time
+
+chirp = x(f0, timeChirpExponential)
+
+sounddevice.play(chirp, 44100)
 
 # ex6
 
@@ -130,25 +142,26 @@ fig.show()
 
 # a)
 
-fs = 40
+fs = 20
 
 time = np.linspace(0, 1, fs)
-timeDecimated = np.linspace(0, 1, fs // 4)
+timeDecimated = np.linspace(0, 1, fs)[0::4]
+timeDecimatedShifted =  np.linspace(0, 1, fs)[1::4]
 
 sine = 1 * np.sin(2 * np.pi * 2 * time + 0)
 sineDecimated = 1 * np.sin(2 * np.pi * 2 * timeDecimated + 0)
-sineDecimatedShifted = 1 * np.sin(2 * np.pi * 2 * timeDecimated[1:] + 0)
+sineDecimatedShifted = 1 * np.sin(2 * np.pi * 2 * timeDecimatedShifted + 0)
 
 plt.title("Decimated sine waves")
 plt.plot(time, sine, label="fs")
 plt.plot(timeDecimated, sineDecimated, label="fs / 4")
-plt.plot(timeDecimated[1:], sineDecimatedShifted, label="fs / 4 shifted")
+plt.plot(timeDecimatedShifted, sineDecimatedShifted, label="fs / 4 shifted")
 
 plt.legend()
 plt.show()
 
 # o frecventa de esantionare mai mica (decimata) ne da o sinusoida mai putin neteda
-# daca incepem cu al doilea element, practic shiftam sinusoida la dreapta
+# daca incepem cu al doilea element, practic shiftam sinusoida la stanga
 
 # ex8
 
@@ -163,8 +176,9 @@ fig.suptitle("Sine approximations")
 axs[0].plot(time, sine, label="sine", color="red")
 axs[0].plot(time, taylorApprox, label="taylor",  color="green")
 axs[0].plot(time, padeApprox, label="pade",  color="blue")
-axs[1].plot(time, np.abs(sine - taylorApprox), label="error taylor")
-axs[1].plot(time, np.abs(sine - padeApprox), label="error pade")
+axs[1].semilogy(time, (np.abs(sine - taylorApprox)), label="error taylor")
+axs[1].semilogy(time, (np.abs(sine - padeApprox)), label="error pade")
+
 
 axs[0].legend()
 axs[1].legend()
