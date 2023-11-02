@@ -1,7 +1,9 @@
+# %%
 import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+# %%
 # ex1
 
 def dft(N, x):
@@ -39,3 +41,81 @@ plt.legend()
 
 plt.savefig("dft_vs_fft.pdf")
 plt.show()
+
+# %%
+# ex2
+
+# frecventa de esantionare este 4, nu 5, daca nu folosesc endpoint=False
+discreteTime = np.linspace(0, 1, 5)
+
+continuousTime = np.linspace(0, 1, 10000)
+
+def getSine(freq, axis):
+    return np.sin(2 * np.pi * freq * axis)
+    
+fig, axs = plt.subplots(3)
+
+
+axs[0].stem(discreteTime, getSine(7, discreteTime))
+axs[0].plot(continuousTime, getSine(7, continuousTime))
+
+axs[1].stem(discreteTime, getSine(7, discreteTime))
+axs[1].plot(continuousTime, getSine(11, continuousTime))
+
+axs[2].stem(discreteTime, getSine(7, discreteTime))
+axs[2].plot(continuousTime, getSine(15, continuousTime))
+
+fig.show()
+
+# %%
+# ex3
+
+# frecventa de esantionare este 19, nu 20, daca nu folosesc endpoint=False
+discreteTime = np.linspace(0, 1, 20)
+
+continuousTime = np.linspace(0, 1, 10000)
+
+def getSine(freq, axis):
+    return np.sin(2 * np.pi * freq * axis)
+    
+fig, axs = plt.subplots(3)
+
+
+axs[0].stem(discreteTime, getSine(7, discreteTime))
+axs[0].plot(continuousTime, getSine(7, continuousTime))
+
+axs[1].stem(discreteTime, getSine(7, discreteTime))
+axs[1].plot(continuousTime, getSine(7 + 19 * 1, continuousTime))
+
+axs[2].stem(discreteTime, getSine(7, discreteTime))
+axs[2].plot(continuousTime, getSine(7 + 19 * 2, continuousTime))
+
+fig.show()
+
+# %%
+#ex 4
+
+# 2 * frecventa maxima = 2 * 200 = 400 Hz
+
+# %%
+#ex5
+
+# %%
+# ex6
+
+# %%
+# ex7
+
+# 10 log ps/pz = 80
+
+# 10 * log 90/pz = 80
+
+# log 90 - log pz = 8
+# log9 + 1 - logpz = 8
+# log9 - 7 = logpz
+
+# 10 ** (log9 - 7) = pz
+
+# 9 * 10 ^ (- 7) = pz
+
+
