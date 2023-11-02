@@ -39,7 +39,7 @@ plt.plot([128, 256, 512, 1024, 2048, 4096, 8192], np.log(time_dft), label="DFT O
 plt.plot([128, 256, 512, 1024, 2048, 4096, 8192], np.log(time_fft), label="FFT O(NlogN)")
 plt.legend()
 
-plt.savefig("dft_vs_fft.pdf")
+plt.savefig("ex1.pdf")
 plt.show()
 
 # %%
@@ -65,13 +65,14 @@ axs[1].plot(continuousTime, getSine(11, continuousTime))
 axs[2].stem(discreteTime, getSine(7, discreteTime))
 axs[2].plot(continuousTime, getSine(15, continuousTime))
 
+fig.savefig("ex2.pdf")
 fig.show()
 
 # %%
 # ex3
 
-# frecventa de esantionare este 19, nu 20, daca nu folosesc endpoint=False
-discreteTime = np.linspace(0, 1, 20)
+# frecventa de esantionare este 30, nu 31, daca nu folosesc endpoint=False
+discreteTime = np.linspace(0, 1, 31)
 
 continuousTime = np.linspace(0, 1, 10000)
 
@@ -85,11 +86,12 @@ axs[0].stem(discreteTime, getSine(7, discreteTime))
 axs[0].plot(continuousTime, getSine(7, continuousTime))
 
 axs[1].stem(discreteTime, getSine(7, discreteTime))
-axs[1].plot(continuousTime, getSine(7 + 19 * 1, continuousTime))
+axs[1].plot(continuousTime, getSine(11, continuousTime))
 
 axs[2].stem(discreteTime, getSine(7, discreteTime))
-axs[2].plot(continuousTime, getSine(7 + 19 * 2, continuousTime))
+axs[2].plot(continuousTime, getSine(15, continuousTime))
 
+fig.savefig("ex3.pdf")
 fig.show()
 
 # %%
