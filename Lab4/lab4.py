@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import os
 
 # %%
 # ex1
@@ -19,24 +20,34 @@ def dft(N, x):
 
 time_dft = []
 time_fft = []
-for N in [128, 256, 512, 1024, 2048, 4096, 8192]:
-    sine = np.sin(2 * np.pi * np.linspace(0, 1, N))
-    
-    start_dft = time.time()
-    dft(N, sine)
-    end_dft = time.time()
-    
-    time_dft.append(end_dft - start_dft)
-    
-    start_fft = time.time()
-    np.fft.fft(sine)
-    end_fft = time.time()
-    
-    time_fft.append(end_fft - start_fft)
+if not os.path.isfile('ex1-dft.npy') or not os.path.isfile('ex1-fft.npy'):
+    for N in [128, 256, 512, 1024, 2048, 4096, 8192]:
+        sine = np.sin(2 * np.pi * np.linspace(0, 1, N))
+        
+        start_dft = time.time()
+        dft(N, sine)
+        end_dft = time.time()
+        
+        time_dft.append(end_dft - start_dft)
+        
+        start_fft = time.time()
+        np.fft.fft(sine)
+        end_fft = time.time()
+        
+        time_fft.append(end_fft - start_fft)
 
+    with open('ex1-dft.npy', 'wb') as f:
+            np.save(f, np.array(time_dft))
 
-plt.plot([128, 256, 512, 1024, 2048, 4096, 8192], np.log(time_dft), label="DFT O(N^2)")
-plt.plot([128, 256, 512, 1024, 2048, 4096, 8192], np.log(time_fft), label="FFT O(NlogN)")
+    with open('ex1-fft.npy', 'wb') as f:
+            np.save(f, np.array(time_fft))
+else:
+    time_dft = np.load("ex1-dft.npy")
+    time_fft = np.load("ex1-fft.npy")
+
+plt.yscale('log') 
+plt.plot([128, 256, 512, 1024, 2048, 4096, 8192], time_dft, label="DFT O(N^2)")
+plt.plot([128, 256, 512, 1024, 2048, 4096, 8192], time_fft, label="FFT O(NlogN)")
 plt.legend()
 
 plt.savefig("ex1.pdf")
@@ -56,13 +67,13 @@ def getSine(freq, axis):
 fig, axs = plt.subplots(3)
 
 
-axs[0].stem(discreteTime, getSine(7, discreteTime))
+axs[0].scatter(discreteTime, getSine(7, discreteTime), color='red')
 axs[0].plot(continuousTime, getSine(7, continuousTime))
 
-axs[1].stem(discreteTime, getSine(7, discreteTime))
+axs[1].scatter(discreteTime, getSine(7, discreteTime), color='red')
 axs[1].plot(continuousTime, getSine(11, continuousTime))
 
-axs[2].stem(discreteTime, getSine(7, discreteTime))
+axs[2].scatter(discreteTime, getSine(7, discreteTime), color='red')
 axs[2].plot(continuousTime, getSine(15, continuousTime))
 
 fig.savefig("ex2.pdf")
@@ -82,13 +93,13 @@ def getSine(freq, axis):
 fig, axs = plt.subplots(3)
 
 
-axs[0].stem(discreteTime, getSine(7, discreteTime))
+axs[0].scatter(discreteTime, getSine(7, discreteTime), color='red')
 axs[0].plot(continuousTime, getSine(7, continuousTime))
 
-axs[1].stem(discreteTime, getSine(7, discreteTime))
+axs[1].scatter(discreteTime, getSine(7, discreteTime), color='red')
 axs[1].plot(continuousTime, getSine(11, continuousTime))
 
-axs[2].stem(discreteTime, getSine(7, discreteTime))
+axs[2].scatter(discreteTime, getSine(7, discreteTime), color='red')
 axs[2].plot(continuousTime, getSine(15, continuousTime))
 
 fig.savefig("ex3.pdf")
@@ -101,9 +112,46 @@ fig.show()
 
 # %%
 #ex5
+# Se pot distinge dupa intensitatea culorii data de magnitudine 
+# pentru fiecare frecventa
 
 # %%
 # ex6
+from scipy.io import wavfile
+
+# a)
+samplerate, data = wavfile.read('vowels.wav')
+
+# b)
+
+groupSize = int(1 / 100 * len(data))
+overlap = int(50 / 100 * groupSize)
+
+groups = []
+for i in range(0, len(data) - groupSize, overlap):
+    groups.append(data[i : i + groupSize])
+    
+# c)
+
+spectogramMatrix = []
+groups = np.array(groups)
+for g in groups:
+    freq = np.fft.fft(g)
+    # d)
+    if len(spectogramMatrix) == 0:
+        spectogramMatrix = np.abs(freq).T
+    else:
+        spectogramMatrix = np.c_[spectogramMatrix, np.abs(freq)]
+
+# e) 
+    
+spectogramMatrix = np.log(spectogramMatrix)
+plt.imshow(spectogramMatrix, aspect='auto', origin='lower')
+plt.colorbar()
+plt.savefig("ex6-spectogram.pdf")
+plt.show()
+
+
 
 # %%
 # ex7
