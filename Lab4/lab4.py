@@ -118,6 +118,8 @@ fig.show()
 # %%
 # ex6
 from scipy.io import wavfile
+import math
+import scipy
 
 # a)
 samplerate, data = wavfile.read('vowels.wav')
@@ -133,22 +135,30 @@ for i in range(0, len(data) - groupSize, overlap):
     
 # c)
 
+mu = 0
+variance = 0.5
+sigma = math.sqrt(variance)
+x = np.linspace(mu - 3*sigma, mu + 3*sigma, groupSize)
+
 spectogramMatrix = []
 groups = np.array(groups)
 for g in groups:
-    freq = np.fft.fft(g)
+    freq = np.fft.fft(g) * scipy.stats.norm.pdf(x, mu, sigma)/scipy.stats.norm.pdf(0, mu, sigma)
     # d)
     if len(spectogramMatrix) == 0:
-        spectogramMatrix = np.abs(freq).T
+        spectogramMatrix = np.abs(freq[:len(g)//2]).T
     else:
-        spectogramMatrix = np.c_[spectogramMatrix, np.abs(freq)]
+        spectogramMatrix = np.c_[spectogramMatrix, np.abs(freq[:len(g)//2])]
 
 # e) 
     
-spectogramMatrix = np.log(spectogramMatrix)
+spectogramMatrix = np.log10(spectogramMatrix)
 plt.imshow(spectogramMatrix, aspect='auto', origin='lower')
 plt.colorbar()
 plt.savefig("ex6-spectogram.pdf")
+plt.show()
+
+plt.specgram(data, NFFT=groupSize, noverlap=overlap)
 plt.show()
 
 
