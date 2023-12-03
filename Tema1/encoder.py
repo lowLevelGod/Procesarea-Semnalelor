@@ -1,10 +1,11 @@
 import numpy as np
 from scipy.fft import dctn
 from math import ceil
-from utils import *
+from utils import zigzag
+
 
 class Encoder:
-    def __init__(self, compressionFactor) -> None:
+    def __init__(self, compressionFactor = 50) -> None:
         self.compressionFactor = compressionFactor
     
     def _rgb2ycbcr(self, im):
@@ -14,8 +15,9 @@ class Encoder:
         return np.uint8(ycbcr)
     
     def _encodeBlock(self, block, quantization_type):
+        # ex3
         if quantization_type == 'Y':
-            Q_jpeg = 10 * np.array([[16, 11, 10, 16, 24, 40, 51, 61],
+            Q_jpeg = self.compressionFactor * 10 ** 3 * np.array([[16, 11, 10, 16, 24, 40, 51, 61],
                     [12, 12, 14, 19, 26, 28, 60, 55],
                     [14, 13, 16, 24, 40, 57, 69, 56],
                     [14, 17, 22, 29, 51, 87, 80, 62],
@@ -24,7 +26,7 @@ class Encoder:
                     [49, 64, 78, 87, 103, 121, 120, 101],
                     [72, 92, 95, 98, 112, 100, 103, 99]])
         elif quantization_type == 'C':
-            Q_jpeg = 10 * np.array([
+            Q_jpeg = self.compressionFactor * 10 ** 3 * np.array([
                     [17, 18, 24, 47, 99, 99, 99, 99],
                     [18, 21, 26, 66, 99, 99, 99, 99],
                     [24, 26, 56, 99, 99, 99, 99, 99],
@@ -66,54 +68,39 @@ class Encoder:
             result = layerPadded
         
         return result
-
         
-    def encode(self, img, mse_bound = 5):
+    def encode(self, img):
+        
+        # ex1
+        
         X = img.copy()
         
-        # ex3
-            
         # ex2
         if len(X.shape) == 3:
             X = self._rgb2ycbcr(X)
             y, cb, cr    = self._padLayer(X[:, :, 0]), self._padLayer(X[:, :, 1]), self._padLayer(X[:, :, 2])
             (y, means_y), (cb, means_cb), (cr, means_cr) = self._compressLayer(y, 'Y'), self._compressLayer(cb, 'C'), self._compressLayer(cr, 'C')
             
-            y = np.array([zigzag(b) for b in y]).astype(np.int16)
-            cb = np.array([zigzag(b) for b in cb]).astype(np.int16)
-            cr = np.array([zigzag(b) for b in cr]).astype(np.int16)
+            y = [zigzag(b) for b in y]
+            cb = [zigzag(b) for b in cb]
+            cr = [zigzag(b) for b in cr]
             
-            yEncoded = run_length_encoding(y)
-            yFrequencyTable = get_freq_dict(yEncoded)
-            yHuffman = find_huffman(yFrequencyTable)
+            y = np.array(y).astype(np.int16).flatten()
+            cb = np.array(cb).astype(np.int16).flatten()
+            cr = np.array(cr).astype(np.int16).flatten()
             
-            crEncoded = run_length_encoding(cr)
-            crFrequencyTable = get_freq_dict(crEncoded)
-            crHuffman = find_huffman(crFrequencyTable)
-
-            cbEncoded = run_length_encoding(cb)
-            cbFrequencyTable = get_freq_dict(cbEncoded)
-            cbHuffman = find_huffman(cbFrequencyTable)
+            yEncoded = " ".join([str(x) for x in y])
+            crEncoded = " ".join([str(x) for x in cr])
+            cbEncoded = " ".join([str(x) for x in cb])
             
-            yBitsToTransmit = str()
-            for value in yEncoded:
-                yBitsToTransmit += yHuffman[value]
-
-            crBitsToTransmit = str()
-            for value in crEncoded:
-                crBitsToTransmit += crHuffman[value]
-
-            cbBitsToTransmit = str()
-            for value in cbEncoded:
-                cbBitsToTransmit += cbHuffman[value]
+            means_y = " ".join([str(x) for x in means_y])
+            means_cb = " ".join([str(x) for x in means_cb])
+            means_cr = " ".join([str(x) for x in means_cr])
             
-            means_y = " ".join(x for x in means_y)
-            means_cb = " ".join(x for x in means_cb)
-            means_cr = " ".join(x for x in means_cr)
-            
-            return str(X.shape[0]) + " " + str(X.shape[1]) + "\n".join([yBitsToTransmit, means_y, cbBitsToTransmit, means_cb, crBitsToTransmit, means_cr])
+            bitstream = str(X.shape[0]) + " " + str(X.shape[1]) + "\n" +  "\n".join([yEncoded, means_y, cbEncoded, means_cb, crEncoded, means_cr])
+            bitstream = bitstream.encode()
+            return bitstream
         elif len(X.shape) == 2:
             X = self._compressLayer(X, 'Y')
-        #TODO HUFFMAN ENCODING
     
         return X
