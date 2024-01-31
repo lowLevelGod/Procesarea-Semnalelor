@@ -1,0 +1,44 @@
+\chapter{Introducere}
+
+\section{Definiţia anomaliilor}
+
+O \textbf{anomalie} este o entitate ce diferă semnificativ de restul enităţilor din 
+setul de date. Definiţia lui Hawkins este urmatoarea\cite{hawkins1980identification}:
+\textit{"O anomalie este o observaţie ce deviază atât de mult faţă de restul observaţiilor,
+încât să creeze suspiciunea că a fost generată de un mecanism diferit"}.
+
+\section{Datele folosite}
+
+\noindent Pentru testarea modelelor, am folosit date reale de pe burs\u a, cu ajutorul bibliotecii \texttt{yfin}, ce este un Python SDK pentru API-ul oferit de Yahoo Finance. Din aceste date, am extras timestamp-ul (\^ in acest caz, trunchiat la zi) \c si pre\c tul zilnic la care s-a \^ inchis tranzac\c tionarea (``Close"), pentru a ob\c tine seria de timp. \\
+
+\section{Indicatorul beta}
+
+Volatilitatea ac\c tiunilor este o m\u asur\u a important\u a \^ in analiza seriilor de timp determinate de evolu\c tia pre\c turilor acestora, fiind indicatorul principal \c si un standard \^ in industrie pentru exprimarea riscului asociat cu o investi\c tie \^ in acele ac\c tiuni. Aceasta ofer\u a investitorilor \c si anali\c stilor financiari o imagine asupra incertitudinii \c si dinamicii pie\c tei. \\ 
+
+O m\u asur\u a relativ\u a (fa\c t\u a de pia\c t\u a) pentru volatilitate este indicatorul $\beta$. Ac\c tiunile cu valori $\beta > 1$ sunt mai volatile dec\^ at S\&P 500, iar cele mai mici (dar pozitive) sunt mai pu\c tin volatile. O valoare egal\u a indic\u a o str\^ ans\u a corelare cu pia\c ta. \^ In acela\c si timp, $\beta$ poate lua \c si valori negative, caz \^ in care corela\c tia este invers\u a (de exemplu, dac\u a $\beta = -1.0$, atunci ac\c tiunea respectiv\u a are o corela\c tie invers\u a $1$ la $1$ cu pia\c ta). \cite{investopedia_beta} \\
+
+Formula pentru calcularea indicatorului este urm\u atoarea \cite{investopedia_beta}:
+
+$$ \beta = \frac{Cov(R_e, R_m)}{Var(R_m)}$$
+
+unde $R_e$ - rentabilitatea ac\c tiunii, $R_m$ - rentabilitatea pie\c tii, iar $Cov$ \c si $Var$ sunt nota\c tiile uzuale pentru covarian\c ta \c si varian\c ta dintre dou\u a variabile. 
+
+\section{Online versus offline}
+
+Prin detec\c tia de anomalii \textbf{offline} se \^ intelege detec\c tia anomaliilor pe \^ intreaga serie de timp, iar prin detec\c tia de anomalii \textbf{online} se \^ intelege detec\c tia anomaliilor \^ in ultimul punct al seriei (cel mai recent). 
+
+\subsection {Detec\c tia anomaliilor offline}
+
+Prin aceast\u a abordare, se analizeaz\u a \^ intreaga serie de timp pentru a identifica modele neobi\c snuite sau schimb\u ari nea\c steptate. 
+
+Aceast\u a metod\u a poate fi util\u a, de exemplu, \^ in cazul detect\u arii anomaliilor mai complexe, care nu reies dintr-un singur punct de date (a se vedea o anomalie de acest tip \^ in analiza f\u acut\u a mai jos pentru AAPL). \^ In plus, este o op\c tiune folosit\u a dac\u a se dore\c ste analiza datelor istorice, pentru a descoperi cum au influen\c tat anumite evenimente (crize financiare, r\u azboaie \c samd.) pie\c tele de capital. 
+
+\subsection {Detec\c tia anomaliilor online}
+
+\^ In general, detec\c tia anomaliilor online (\^ in ultimul punct al seriei) se face prin compararea valorii acestuia cu rezultate statistice, istorice sau date de un model predictiv. 
+
+Un exemplu de caz \^ in care aceast\u a metod\u a ar fi aleas\u a \^ in detrimentul primeia ar fi \^ in cazul trading-ului \textit{high-frequency} (la intervale foarte scurte de timp), unde eficien\c ta computa\c tional\u a poate face diferen\c ta \^ intre o tranzac\c tie profitabil\u a sau o tranzac\c tie care genereaz\u a o pierdere. 
+
+\subsection {Compara\c tie}
+
+Din punct de vedere al contextului pe care \^ il de\c tine modelul, metoda offline este clar una mai bun\u a. \^ In schimb, aceast\u a metod\u a are o laten\c t\u a \^ in detectare (fiind necesar\u a analiza unei \^ intregi serii de timp), abordarea online fiind una mai bun\u a dac\u a se dore\c ste eficien\c t\u a computa\c tional\u a.
